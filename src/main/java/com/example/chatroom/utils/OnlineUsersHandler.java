@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
-public class QuestionHandler extends TextWebSocketHandler { // for text messages BinaryWebSocketHandler for files
+public class OnlineUsersHandler extends TextWebSocketHandler { // for text messages BinaryWebSocketHandler for files
 
     //https://www.geeksforgeeks.org/copyonwritearraylist-in-java/
     List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
@@ -22,18 +22,26 @@ public class QuestionHandler extends TextWebSocketHandler { // for text messages
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
-        String nickname = (String) session.getAttributes().get("NICKNAME");
+        String userEnteredNickname = (String) session.getAttributes().get("NICKNAME");
 //        TextMessage mm = new TextMessage("hello");
         for (WebSocketSession s : sessions) { // broadcast to all
 //s.getAttributes().put(key, s);
-            if (s.equals(session)) {
-                continue;
-            }
+            String currentReceiver = (String) s.getAttributes().get("NICKNAME");
             try {
-                s.sendMessage(new TextMessage(nickname + ":" + message.getPayload()));
+
+                s.sendMessage(new TextMessage("HARD_RESET"));
+                for (WebSocketSession ses : sessions) {
+                    String currentNickname = (String) ses.getAttributes().get("NICKNAME");
+//                    System.out.println("User Invoked Call: " + userEnteredNickname + ", " + "Current Receiver: " + currentReceiver  + ", " + "Current User: " + currentNickname);
+                    if (currentNickname.equals(currentReceiver)) {
+                        s.sendMessage(new TextMessage("You"));
+                    } else {
+                        s.sendMessage(new TextMessage(currentNickname));
+                    }
+                }
                 // s.sendMessage(mm);
             } catch (IOException ex) {
-                Logger.getLogger(QuestionHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(OnlineUsersHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
