@@ -1,5 +1,7 @@
 package com.example.chatroom.utils;
 
+import com.example.chatroom.pojo.WebSocketMessagePOJO;
+import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -22,15 +24,17 @@ public class QuestionHandler extends TextWebSocketHandler { // for text messages
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
-        String nickname = (String) session.getAttributes().get("NICKNAME");
+        String username = session.getPrincipal().getName();
 //        TextMessage mm = new TextMessage("hello");
         for (WebSocketSession s : sessions) { // broadcast to all
 //s.getAttributes().put(key, s);
-            if (s.equals(session)) {
+            if (username.equals(s.getPrincipal().getName())) {
                 continue;
             }
             try {
-                s.sendMessage(new TextMessage(nickname + ":" + message.getPayload()));
+                WebSocketMessagePOJO messagePOJO = new WebSocketMessagePOJO(username, message.getPayload());
+                String messageJson = new Gson().toJson(messagePOJO, WebSocketMessagePOJO.class);
+                s.sendMessage(new TextMessage(messageJson));
                 // s.sendMessage(mm);
             } catch (IOException ex) {
                 Logger.getLogger(QuestionHandler.class.getName()).log(Level.SEVERE, null, ex);

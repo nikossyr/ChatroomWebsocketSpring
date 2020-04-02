@@ -1,5 +1,8 @@
 "use strict";
 
+let token = $("meta[name='_csrf']").attr("content");
+let header = $("meta[name='_csrf_header']").attr("content");
+
 // Gets the app base url from browser
 function getContextPath() {
     return window.location.href.substring(7);
@@ -29,21 +32,16 @@ $(document).ready(function () {
     });
 
     // alert(ws);
-    ws.onmessage = function (data) {
-        //alert(data.data);
-        let delimiterIndex = data.data.indexOf(":");
-        console.log("Index", delimiterIndex);
-        let nickname = data.data.substring(0, delimiterIndex);
-        console.log(nickname);
-        let message = data.data.substring(delimiterIndex + 1);
-        console.log(message);
+    ws.onmessage = function (response) {
+        console.log(response);
+        let responseJson = JSON.parse(response.data);
         let html = "<div class=\"incoming_msg\">\n" +
             " <div class=\"incoming_msg_img\"><img src=\"https://ptetutorials.com/images/user-profile.png\"\n" +
             "  alt=\"sunil\"></div>\n" +
             "<div class=\"received_msg\">\n" +
-            "<p>" + nickname + "</p>" +
+            "<p>" + responseJson.username + "</p>" +
             " <div class=\"received_withd_msg\">\n" +
-            " <p>" + message + "</p>\n" +
+            " <p>" + responseJson.message + "</p>\n" +
             "<span class=\"time_date\">" +
             new Date().toLocaleString() +
             "</span></div>\n" +
@@ -56,26 +54,24 @@ $(document).ready(function () {
 
     let url1 = "ws://" + getContextPath() + "/online";
     wsonline = new WebSocket(url1);
-    wsonline.onmessage = function (users) {
-        if (users.data === "HARD_RESET") {
-            $("#chatlist").empty();
-        } else {
-            let html = "<div class=\"chat_list\">" +
+    wsonline.onmessage = function (usersOnline) {
+        console.log(usersOnline);
+        let users = JSON.parse(usersOnline.data);
+        console.log(users);
+        $("#chatlist").empty();
+        for (let i = 0; i < users.length; i++) {
+            let html = "<div id='" + users[i] + "' class=\"chat_list\">" +
                 "<div class=\"chat_people\">\n" +
                 "<div class=\"chat_img\"><img src=\"https://ptetutorials.com/images/user-profile.png\"\n" +
                 "alt=\"sunil\"></div>\n" +
                 "<div class=\"chat_ib\">\n" +
-                "<h5>" + users.data + "</h5>\n" +
+                "<h5>" + users[i] + "</h5>\n" +
                 "</div>\n" +
                 "</div>" +
                 " </div>";
             $("#chatlist").append(html);
         }
     };
-
-    setTimeout(function () {
-        wsonline.send("Hi")
-    }, 2000);
 });
 
 function appendOutgoingMessage(message) {

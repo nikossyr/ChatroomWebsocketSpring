@@ -12,12 +12,11 @@ public class DefaultController {
 
     @GetMapping("/")
     public String getWelcomePage() {
-        return "index";
+        return "redirect:/login";
     }
 
     @GetMapping("/chatroom")
     public String getChatRoot() {
-
         return "chatroom";
     }
 
@@ -25,5 +24,16 @@ public class DefaultController {
     public String addNote(@RequestParam("nicknameInput") String nickname, HttpServletRequest request) {
         request.getSession().setAttribute("NICKNAME", nickname);
         return "redirect:/chatroom";
+    }
+
+    @GetMapping("/index")
+    public String addNote(HttpServletRequest request) {
+        System.out.println(request.getSession());
+        return "index";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 }
