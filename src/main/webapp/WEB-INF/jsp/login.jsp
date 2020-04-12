@@ -26,7 +26,7 @@
                         <div class="form-group">
                             <label for="loginUsername">Username</label>
                             <input type="text" class="form-control" id="loginUsername" name="username"
-                                   aria-describedby="usernmaelHelp">
+                                   aria-describedby="usernameHelp">
                         </div>
                         <div class="form-group">
                             <label for="loginPassword">Password</label>
