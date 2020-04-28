@@ -1,6 +1,8 @@
 package com.example.chatroom.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.Session;
@@ -20,18 +22,24 @@ public class WebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfig
 //                .addInterceptors(new HttpSessionHandshakeInterceptor());//https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/socket/server/support/HttpSessionHandshakeInterceptor.html
 ////                .addInterceptors(new SessionConnectEvent());
 //    }
+    @Autowired
+    private OnlineStatusMessageInterceptor onlineStatusMessageInterceptor;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic/");
+        registry.enableSimpleBroker("/topic/", "/user", "/queue");
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void configureStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chat");
+        registry.addEndpoint("/chat").withSockJS();
 //                .addInterceptors(new HttpSessionHandshakeInterceptor());
-
     }
 
-
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(onlineStatusMessageInterceptor);
+    }
 }
