@@ -16,15 +16,18 @@ stompClient.connect(headers, function (frame) {
             let username = usernames[i];
             let usernameId = "#" + username;
             if ($(usernameId).length) {
-                if (!$(usernameId).hasClass("online")) {
-                    $(usernameId).addClass("online");
+                if (!$(usernameId).find("span").hasClass("badge-success")) {
+                    $(usernameId).find("span").addClass("badge-success").removeClass("badge-secondary");
                 }
             } else {
                 if (username === currentUser) {
-                    let html = "<div id='" + username + "' class=\"chat_list online\">" +
+                    let html =
+                        "<div id='" + username + "' class=\"chat_list online\">" +
                         "<div class=\"chat_people\">\n" +
                         "<div class=\"chat_img\"><img src=\"https://ptetutorials.com/images/user-profile.png\"\n" +
-                        "alt=\"sunil\"></div>\n" +
+                        "alt=\"sunil\">" +
+                        "<span class=\"badge badge-pill badge-success\">&nbsp;</span>" +
+                        "</div>\n" +
                         "<div class=\"chat_ib\">\n" +
                         "<h5>Me</h5>\n" +
                         "</div>\n" +
@@ -35,7 +38,9 @@ stompClient.connect(headers, function (frame) {
                     let html = "<div id='" + username + "' class=\"chat_list online\">" +
                         "<div class=\"chat_people\">\n" +
                         "<div class=\"chat_img\"><img src=\"https://ptetutorials.com/images/user-profile.png\"\n" +
-                        "alt=\"sunil\"></div>\n" +
+                        "alt=\"sunil\">" +
+                        "<span class=\"badge badge-pill badge-success\">&nbsp;</span>" +
+                        "</div>\n" +
                         "<div class=\"chat_ib\">\n" +
                         "<h5>" + username + "</h5>\n" +
                         "</div>\n" +
@@ -52,8 +57,8 @@ stompClient.connect(headers, function (frame) {
         let username = userOffline.body;
         let usernameId = "#" + username;
         if ($(usernameId).length) {
-            if (!$(usernameId).hasClass("online")) {
-                $(usernameId).removeClass("online");
+            if ($(usernameId).find("span").hasClass("badge-success")) {
+                $(usernameId).find("span").removeClass("badge-success").addClass("badge-secondary");
             }
         }
 
@@ -80,6 +85,14 @@ stompClient.connect(headers, function (frame) {
 
 $(document).ready(function () {
 
+    $("body").on("click", ".chat_list", function (event) {
+        console.log($(this).attr("id"));
+        $(this).siblings().removeClass('contact_selected');
+        if (!$(this).hasClass("contact_selected")) {
+            $(this).addClass("contact_selected");
+        }
+    });
+
     $(document).bind('keypress', function (e) {
         if (e.key === "Enter") {
             $('#message_send').trigger('click');
@@ -94,10 +107,11 @@ $(document).ready(function () {
 
 function sendMessage() {
     let message = $("#message_input").val();
+    let toUser = $(".contact_selected").attr("id")
     appendOutgoingMessage(message);
     let outgoingMsg = {
-        // 'from': "Me",
-        'to': "ALL",
+        'from': currentUser,
+        'to': toUser,
         'text': message
     };
     stompClient.send("/app/chat", {}, JSON.stringify(outgoingMsg));

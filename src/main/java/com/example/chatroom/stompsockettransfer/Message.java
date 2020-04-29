@@ -1,4 +1,4 @@
-package com.example.chatroom.pojo.stompsockettransfer;
+package com.example.chatroom.stompsockettransfer;
 
 public class Message {
 

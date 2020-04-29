@@ -38,6 +38,17 @@
                     </div>
                 </div>
                 <div class="inbox_chat" id="chatlist">
+                    <div id="groupchat" class="chat_list online contact_selected">
+                        <div class="chat_people">
+                            <div class="chat_img"><img src="https://ptetutorials.com/images/user-profile.png"
+                                                       alt="sunil">
+                                <span class="badge badge-pill badge-success">&nbsp;</span>
+                            </div>
+                            <div class="chat_ib">
+                                <h5>Group Chat</h5>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="mesgs">

@@ -8,7 +8,7 @@ img {
 }
 
 .inbox_people {
-    background: #f8f8f8 none repeat scroll 0 0;
+    /*background: #f8f8f8 none repeat scroll 0 0;*/
     float: left;
     overflow: hidden;
     width: 40%;
@@ -87,6 +87,7 @@ img {
 }
 
 .chat_img {
+    position: relative;
     float: left;
     width: 11%;
 }
@@ -211,4 +212,15 @@ img {
 .msg_history {
     height: 516px;
     overflow-y: auto;
+}
+
+.badge {
+    position: absolute;
+    left: 70%;
+    top: 65%;
+    font-size: 65%;
+}
+
+.contact_selected {
+    background-color: #ededed;
 }

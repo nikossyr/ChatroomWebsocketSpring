@@ -1,7 +1,7 @@
 package com.example.chatroom.resources;
 
-import com.example.chatroom.pojo.stompsockettransfer.Message;
-import com.example.chatroom.pojo.stompsockettransfer.OutputMessage;
+import com.example.chatroom.stompsockettransfer.Message;
+import com.example.chatroom.stompsockettransfer.OutputMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -28,29 +28,6 @@ public class ChatroomController {
     @Autowired
     private SimpUserRegistry userRegistry;
 
-    public void printConnectedUsers() {
-        System.out.println("Connected users:");
-        System.out.println("-----------------");
-        userRegistry.getUsers().stream()
-                .map(u -> u.getName())
-                .forEach(System.out::println);
-        System.out.println("-----------------");
-    }
-
-//    @MessageMapping("/sendMessage")
-//    @SendTo("/topic/getMessage")
-//    public WebSocketMessagePOJO getMessage(@Payload String message, Principal principal) {
-//        WebSocketMessagePOJO messagePOJO = new WebSocketMessagePOJO(principal.getName(), message);
-//        return messagePOJO;
-//    }
-//
-//    @SubscribeMapping("/user/queue/online")
-//    public void chatInit(Principal principal) {
-//        System.out.println(principal.getName() + " just connected!");
-//        simpMessagingTemplate.convertAndSendToUser(principal.getName(),
-//                "/queue/specific-user", userRegistry);
-//    }
-
     @MessageMapping("/chat")
     public void sendSpecific(
             @Payload Message msg,
@@ -61,16 +38,16 @@ public class ChatroomController {
                 principal.getName(),
                 msg.getText(),
                 new SimpleDateFormat("HH:mm").format(new Date()));
-//        printConnectedUsers();
-//        System.out.println(messageHeaders);
-//
-        ArrayList<String> recipientUsernames = userRegistry.getUsers().stream()
-                .map(SimpUser::getName)
-                .filter(username -> !username.equals(principal.getName()))
-                .collect(Collectors.toCollection(ArrayList::new));
-        for (String username : recipientUsernames) {
-            simpMessagingTemplate.convertAndSendToUser(username, "/queue/specific-user", out);
+        if (msg.getTo().equals("groupchat")) {
+            ArrayList<String> recipientUsernames = userRegistry.getUsers().stream()
+                    .map(SimpUser::getName)
+                    .filter(username -> !username.equals(principal.getName()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            for (String username : recipientUsernames) {
+                simpMessagingTemplate.convertAndSendToUser(username, "/queue/specific-user", out);
+            }
+        } else {
+            simpMessagingTemplate.convertAndSendToUser(msg.getTo(), "/queue/specific-user", out);
         }
-//        simpMessagingTemplate.convertAndSend("/user/queue/specific-user", out);
     }
 }
